@@ -16,3 +16,8 @@ class ListingViewSet(viewsets.ModelViewSet):
 class BookingViewSet(viewsets.ModelViewSet):
     queryset = Booking.objects.all()
     serializer_class = BookingSerializer
+
+    def perform_create(self, serializer):
+        booking = serializer.save()
+        # Trigger the email task
+        send_booking_confirmation_email.delay(booking.user.email, booking.details)
